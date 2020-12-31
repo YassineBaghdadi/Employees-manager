@@ -102,9 +102,17 @@ class Main(QtWidgets.QFrame):
     def eventFilter(self, o, e) -> bool:
         if (e.type() == QtCore.QEvent.MouseButtonPress):
             if o is self.omal_btn :
-                self.open_omal()
+                print('opening omal ...')
+                self.omal = Omal()
+                self.close()
+                self.omal.show()
+
             if o is self.history_btn:
-                self.open_history()
+                print('opening history ...')
+                self.history = History()
+                self.close()
+                self.history.show()
+
 
         #
         # if e.type() == QtCore.QEvent.HoverEnter:
@@ -132,19 +140,8 @@ class Main(QtWidgets.QFrame):
     def hover_out(self, o):
         o.setStyleSheet('border: 5px solid blue;')
 
-    def open_history(self):
-        print('opening history ...')
-        self.history = History()
-        self.close()
-        self.history.show()
 
 
-
-    def open_omal(self):
-        print('opening omal ...')
-        self.omal = Omal()
-        self.close()
-        self.omal.show()
 
 class Omal(QtWidgets.QWidget):
     def __init__(self):
@@ -171,6 +168,24 @@ class Omal(QtWidgets.QWidget):
         self.main.show()
 
     def eventFilter(self, o, e) -> bool:
+        if e.type() == QtCore.QEvent.MouseButtonPress:
+            if o is self.add:
+                print('opening history ...')
+                self.add = Add()
+                self.close()
+                self.add.show()
+            if o is self.empl_list:
+                print('opening empl list ...')
+                self.emlL = History(h=False)
+                self.close()
+                self.emlL.show()
+
+            if o is self.pay:
+                print('opening Paying page ...')
+                self.pay_ = Pay()
+                self.close()
+                self.pay_.show()
+
         if e.type() == QtCore.QEvent.HoverEnter:
             if o == self.check:
                 self.check.setStyleSheet('border: 1px solid blue;')
@@ -185,16 +200,50 @@ class Omal(QtWidgets.QWidget):
 
 
 class History(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, h=True):
         super(History, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'history.ui'), self)
+        self.move(300, 200)
+        self.h = h
+        self.back_btn.clicked.connect(self.back)
+        self.title = ''
+        if not h:#todo for change the title if not history window
+            self.title = ''
+
+    def back(self):
+        if self.h:
+            self.main = Main()
+        else:
+            self.main = Omal()
+        self.close()
+        self.main.show()
+
+class Add(QtWidgets.QWidget):
+    def __init__(self):
+        super(Add, self).__init__()
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'add.ui'), self)
         self.move(300, 200)
 
         self.back_btn.clicked.connect(self.back)
 
 
     def back(self):
-        self.main = Main()
+        self.main = Omal()
+        self.close()
+        self.main.show()
+
+
+class Pay(QtWidgets.QWidget):
+    def __init__(self):
+        super(Pay, self).__init__()
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'pay.ui'), self)
+        self.move(300, 200)
+
+        self.back_btn.clicked.connect(self.back)
+
+
+    def back(self):
+        self.main = Omal()
         self.close()
         self.main.show()
 

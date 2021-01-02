@@ -176,7 +176,7 @@ class Omal(QtWidgets.QWidget):
                 self.add.show()
             if o is self.empl_list:
                 print('opening empl list ...')
-                self.emlL = History(h=False)
+                self.emlL =Omal_list()
                 self.close()
                 self.emlL.show()
 
@@ -185,6 +185,12 @@ class Omal(QtWidgets.QWidget):
                 self.pay_ = Pay()
                 self.close()
                 self.pay_.show()
+
+            if o is self.check:
+                print('opening Check in page ...')
+                self.checkin = Checkin()
+                self.close()
+                self.checkin.show()
 
         if e.type() == QtCore.QEvent.HoverEnter:
             if o == self.check:
@@ -241,6 +247,34 @@ class Pay(QtWidgets.QWidget):
 
         self.back_btn.clicked.connect(self.back)
 
+
+    def back(self):
+        self.main = Omal()
+        self.close()
+        self.main.show()
+
+class Omal_list(QtWidgets.QWidget):
+    def __init__(self):
+        super(Omal_list, self).__init__()
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'omal_list.ui'), self)
+        self.move(300, 200)
+
+        self.back_btn.clicked.connect(self.back)
+
+
+    def back(self):
+        self.main = Omal()
+        self.close()
+        self.main.show()
+
+
+class Checkin(QtWidgets.QWidget):
+    def __init__(self):
+        super(Checkin, self).__init__()
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'checkin.ui'), self)
+
+        self.move(300, 200)
+        self.cancel.clicked.connect(self.back)
 
     def back(self):
         self.main = Omal()

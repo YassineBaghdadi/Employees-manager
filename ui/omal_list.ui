@@ -10,6 +10,12 @@
     <height>567</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -27,7 +33,7 @@
         </font>
        </property>
        <property name="text">
-        <string>العمليات السابقة</string>
+        <string>لائحة العمال</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -82,6 +88,16 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QComboBox" name="copanies_combo">
+          <property name="minimumSize">
+           <size>
+            <width>240</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLineEdit" name="search">

@@ -675,23 +675,6 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                   <property name="verticalSpacing">
                    <number>0</number>
                   </property>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="lineEdit_8">
-                    <property name="dragEnabled">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="salary">
-                    <property name="dragEnabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="placeholderText">
-                     <string>الراتب الشهري</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="0">
                    <widget class="QLineEdit" name="cnss">
                     <property name="dragEnabled">
@@ -702,15 +685,18 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
-                   <widget class="QLineEdit" name="lineEdit_13">
+                  <item row="1" column="1">
+                   <widget class="QComboBox" name="company"/>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="salary">
                     <property name="dragEnabled">
                      <bool>true</bool>
                     </property>
+                    <property name="placeholderText">
+                     <string>الراتب الشهري</string>
+                    </property>
                    </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QComboBox" name="company"/>
                   </item>
                   <item row="1" column="0">
                    <widget class="QComboBox" name="role"/>
@@ -822,7 +808,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_6">
                 <item>
-                 <widget class="QPushButton" name="save">
+                 <widget class="QPushButton" name="save_btn">
                   <property name="minimumSize">
                    <size>
                     <width>83</width>
@@ -843,7 +829,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="cancel">
+                 <widget class="QPushButton" name="cancel_btn">
                   <property name="minimumSize">
                    <size>
                     <width>83</width>
@@ -1032,7 +1018,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                 </widget>
                </item>
                <item row="0" column="0">
-                <widget class="QLineEdit" name="L_name2">
+                <widget class="QLineEdit" name="L_name">
                  <property name="dragEnabled">
                   <bool>true</bool>
                  </property>

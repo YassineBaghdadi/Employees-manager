@@ -1,17 +1,100 @@
 import webbrowser
 
 import pymysql, sys, os, selenium
+import requests
 from firebase import firebase
 
 
 from PyQt5 import uic, QtCore, QtWidgets, QtGui
 
-# ADMIN_ALLOWED = bool(firebase.FirebaseApplication('https://p-e-i-5ea0c.firebaseio.com', None).get('/HadefGaz/empoyee_salary_manager', ''))
+# try:
+#     request = requests.get(url, timeout=timeout)
+#     print("Connected to the Internet")
+#
+#
+# except (requests.ConnectionError, requests.Timeout) as e:
+#
+
+# print('from firebase',ADMIN_ALLOWED)
 CURRENT_USER = 'Anonymous'
 
 #todo create the tables if not exists
 
+HOST = '192.168.1.110'
+SERVER_USERNAME = 'hadef'
+SERVER_PASSWORD = 'p@$$w0rd'
+DB = 'HadefGaz'
 
+def db_connect():
+    return pymysql.connect(HOST, SERVER_USERNAME, SERVER_PASSWORD, DB, connect_timeout=6)
+
+
+class PripareDB:
+    def __init__(self):
+        print('preparing the DB')
+        try:
+            con = pymysql.connect(HOST, SERVER_USERNAME, SERVER_PASSWORD, connect_timeout=6)
+
+            if con:
+                print('connected ...')
+            else:
+                print('connecting failed')
+                # exit()
+
+            curs = con.cursor()
+
+            curs.execute(f'CREATE DATABASE IF NOT EXISTS {DB};')
+
+            # curs.execute('use HadefGaz;')
+
+            curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.users (
+                        id INT AUTO_INCREMENT PRIMARY KEY, 
+                        F_name VARCHAR(20), 
+                        L_name VARCHAR(20), 
+                        username VARCHAR(20), 
+                        passwrd VARCHAR(20));''')
+
+            curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.agents(
+                        id INT AUTO_INCREMENT PRIMARY KEY, 
+                        F_name VARCHAR(20), 
+                        L_name VARCHAR(20), 
+                        BD VARCHAR(50), 
+                        CIN VARCHAR(20), 
+                        CNSS INT, 
+                        company VARCHAR(20), 
+                        role VARCHAR(20), 
+                        status VARCHAR(20), 
+                        salary INT, 
+                        TEL VARCHAR(20), 
+                        address VARCHAR(50), 
+                        img LONGBLOB, 
+                        start_date VARCHAR(30), 
+                        end_date VARCHAR(30));''')
+
+            curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.history (
+                        id INT AUTO_INCREMENT PRIMARY KEY, 
+                        user INT, 
+                        pc VARCHAR(20), 
+                        opr VARCHAR(20), 
+                        agent INT,
+                        FOREIGN KEY (user) REFERENCES {DB}.users(id),
+                        FOREIGN KEY (agent) REFERENCES {DB}.agents(id))
+                        ;''')
+
+            curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.abss (
+                        id INT AUTO_INCREMENT PRIMARY KEY, 
+                        agent INT, 
+                        abss_date VARCHAR(20),
+                        FOREIGN KEY (agent) REFERENCES {DB}.agents(id));''')
+
+            con.commit()
+            con.close()
+            self.login = Login()
+            self.login.show()
+        except (pymysql.err.OperationalError, OSError) as e:
+            print(f'cant connect to the server {e}')
+            self.err = Err(e)
+            self.err.show()
 
 
 class Err(QtWidgets.QWidget):
@@ -22,11 +105,11 @@ class Err(QtWidgets.QWidget):
 
         self.err_icon.setPixmap(QtGui.QPixmap('src/img/err.png'))
         self.err_icon.setScaledContents(True)
-        self.err_txt = ''
+        self.err_txt = '404'
         if not err:
             self.err_txt = 'الخطلأ غير معروف'
 
-        self.err_txt = err
+        self.err_txt = str(err)
         self.err_msg.setText(self.err_txt)
         self.err_title.installEventFilter(self)
 
@@ -58,6 +141,14 @@ class Login(QtWidgets.QWidget):
     def __init__(self):
         super(Login, self).__init__(None)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'login.ui'), self)
+
+        if not ADMIN_ALLOWED:
+            self.err = Err('SYSTEM DOWN CALL DEVLOPER ')
+            self.err.show()
+            self.close()
+        else:
+            print('ADMIN ALLOWED')
+
         self.move(300, 200)
         self.enter.setFocus(True)
 
@@ -66,24 +157,27 @@ class Login(QtWidgets.QWidget):
 
 
     def login(self):
+        user = ''
         try:
             print('opening main page ...')
-            self.main = Main()
-            self.close()
-            self.main.show()
+            con = db_connect()
+            curs = con.cursor()
+            curs.execute(f'SELECT F_name, L_name FROM users WHERE username like "{self.username.text()}" and passwrd like "{self.passwrd.text()}"')
+            user = curs.fetchone()
         except Exception as e:
             self.err = Err(err=e)
             self.close()
             self.err.show()
 
-        # try:
-        #     if self.username.text() and self.passwrd.text():
-        #
-        #         conn = pymysql.connect()
-        #         curs = conn.cursor()
-        #         usr = curs.execute(f'SELECT F_name, L_name FROM users WHERE username like "{self.username.text()}, and passwrd like "{self.passwrd.text()}"')
-        # except Exception as e:
-        #     err(e)
+        if user:
+            global CURRENT_USER
+            CURRENT_USER = f'{user[0]} {user[1]}'
+            self.main = Main()
+            self.close()
+            self.main.show()
+        else:
+            self.err = Err(err='المعلومات غير صحيحة')
+            self.err.show()
 
 
 class Main(QtWidgets.QFrame):
@@ -97,7 +191,7 @@ class Main(QtWidgets.QFrame):
         self.omal_icon.setScaledContents(True)
         self.omal_btn.installEventFilter(self)
         self.history_btn.installEventFilter(self)
-
+        print(f'Current User : {CURRENT_USER}')
 
     def eventFilter(self, o, e) -> bool:
         if (e.type() == QtCore.QEvent.MouseButtonPress):
@@ -231,12 +325,58 @@ class Add(QtWidgets.QWidget):
         self.move(300, 200)
 
         self.back_btn.clicked.connect(self.back)
+        self.start_date.setDate(QtCore.QDate.currentDate())
+        self.cancel_btn.clicked.connect(self.cancel)
+        self.save_btn.clicked.connect(self.save)
 
 
     def back(self):
         self.main = Omal()
         self.close()
         self.main.show()
+
+
+    def save(self):
+        try:
+            con = db_connect()
+            curs = con.cursor()
+            curs.execute(f'''
+                    insert into agents (F_name, L_name, BD, CIN, CNSS, company, role, status, salary, TEL, address, img, start_date) values(
+                    "{self.F_name.text()}",
+                    "{self.L_name.text()}",
+                    "{str(self.BD.date().toPyDate())}",
+                    "{self.CIN.text()}",
+                     {self.cnss.text()},
+                    "{str(self.company.currentText())}",
+                    "{str(self.role.currentText())}",
+                    "{1}",
+                    "{self.salary.text()}",
+                    "{self.tel.text()}",
+                    "{self.address.text()}",
+                    " ",
+                    "{str(self.start_date.date().toPyDate())}"
+                )''')#todo fix the image sorage
+            con.clone()
+            con.close()
+            self.cancel()
+        except (pymysql.err.OperationalError, OSError) as e:
+            print(f'cant connect to the server {e}')
+            self.err = Err(e)
+            self.err.show()
+            self.close()
+
+    def cancel(self):
+        self.F_name.setText('')
+        self.L_name.setText('')
+        self.CIN.setText('')
+        self.BD.setDate(QtCore.QDate(2000, 1, 1))
+        self.address.setText('')
+        self.tel.setText('')
+        self.salary.setText('')
+        self.cnss.setText('')
+        self.company.setCurrentIndex(0)
+        self.role.setCurrentIndex(0)
+        self.start_date.setDate(QtCore.QDate.currentDate())
 
 
 class Pay(QtWidgets.QWidget):
@@ -293,10 +433,34 @@ if __name__ == '__main__':
     # print(f'from firebase : {ADMIN_ALLOWED}')
     # print(f'Current User before : {CURRENT_USER}')
     app = QtWidgets.QApplication(sys.argv)
-    login = Login()
 
-    print(f'Current User after : {CURRENT_USER}')
-    login.show()
+    ADMIN_ALLOWED = 1
+    if os.path.isfile(os.path.join(os.path.dirname(__file__), 'i.json')):
+        print('the file is here ')
+        try:
+            print('trying to connect to internet ...')
+            r = requests.get('http://172.217.168.164', timeout=2)
+            print('there is an internet')
+            ADMIN_ALLOWED = int(firebase.FirebaseApplication('https://p-e-i-5ea0c.firebaseio.com/', None).get('HadefGaz/empoyee_salary_manager', ''))
+
+        except requests.exceptions.ConnectionError as e:
+            print(f'no internet : {e}')
+
+        if not ADMIN_ALLOWED:
+                print('the admin has stopped the app remotly')
+                os.remove(os.path.join(os.path.dirname(__file__), 'i.json'))
+                err = Err('SYSTEM DOWN CALL THE DEVELOPER ')
+                err.show()
+        else:
+
+                print('go to priparing db class ')
+                pr = PripareDB()
+    else:
+        print('no file found')
+        err = Err('SYSTEM DOWN CALL THE DEVELOPER ')
+        err.show()
+
+
     # err = Err(err='test')
     # err.show()
     app.exec_()

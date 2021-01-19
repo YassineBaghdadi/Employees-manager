@@ -328,6 +328,8 @@ class Add(QtWidgets.QWidget):
         self.start_date.setDate(QtCore.QDate.currentDate())
         self.cancel_btn.clicked.connect(self.cancel)
         self.save_btn.clicked.connect(self.save)
+        self.companies = ['هادف غاز', 'صافكام', 'سونعيمي', 'المقهى', 'عيمكة', 'أخرى']
+        #todo here stopped
 
 
     def back(self):
@@ -355,8 +357,8 @@ class Add(QtWidgets.QWidget):
                     "{self.address.text()}",
                     " ",
                     "{str(self.start_date.date().toPyDate())}"
-                )''')#todo fix the image sorage
-            con.clone()
+                )''')#todo fix the image storage
+            con.commit()
             con.close()
             self.cancel()
         except (pymysql.err.OperationalError, OSError) as e:

@@ -26,14 +26,14 @@ SERVER_PASSWORD = 'p@$$w0rd'
 DB = 'HadefGaz'
 
 def db_connect():
-    return pymysql.connect(HOST, SERVER_USERNAME, SERVER_PASSWORD, DB, connect_timeout=6)
+    return pymysql.connect(host=HOST, user=SERVER_USERNAME, password=SERVER_PASSWORD, database=DB)
 
 
 class PripareDB:
     def __init__(self):
         print('preparing the DB')
         try:
-            con = pymysql.connect(HOST, SERVER_USERNAME, SERVER_PASSWORD, connect_timeout=6)
+            con = pymysql.connect(host=HOST, user=SERVER_USERNAME, password=SERVER_PASSWORD)
 
             if con:
                 print('connected ...')
@@ -153,17 +153,21 @@ class Login(QtWidgets.QWidget):
         self.enter.setFocus(True)
 
         self.enter.clicked.connect(self.login)
+        
 
 
 
     def login(self):
         user = ''
+    
+        
         try:
             print('opening main page ...')
             con = db_connect()
             curs = con.cursor()
-            curs.execute(f'SELECT F_name, L_name FROM users WHERE username like "{self.username.text()}" and passwrd like "{self.passwrd.text()}"')
+            curs.execute(f'SELECT F_name, L_name FROM users WHERE username like "{self.username.text()}" and passwrd like "{self.passwrd.text()}";')
             user = curs.fetchone()
+            print(f"the current users is : {user}")
         except Exception as e:
             self.err = Err(err=e)
             self.close()
@@ -178,6 +182,8 @@ class Login(QtWidgets.QWidget):
         else:
             self.err = Err(err='المعلومات غير صحيحة')
             self.err.show()
+
+        
 
 
 class Main(QtWidgets.QFrame):
@@ -328,7 +334,12 @@ class Add(QtWidgets.QWidget):
         self.start_date.setDate(QtCore.QDate.currentDate())
         self.cancel_btn.clicked.connect(self.cancel)
         self.save_btn.clicked.connect(self.save)
-        self.companies = ['هادف غاز', 'صافكام', 'سونعيمي', 'المقهى', 'عيمكة', 'أخرى']
+        self.companies = ['هادف غاز', 'صافكام', 'سونعيمي', 'المقهى', 'هيمكة', 'أخرى']
+        self.roles = ["سائق", "مساعد", "الإدارة", "أخرى"]
+        self.cnss.setValidator(QtGui.QIntValidator())
+        self.salary.setValidator(QtGui.QIntValidator())
+        self.company.addItems(self.companies)
+        self.role.addItems(self.roles)
         #todo here stopped
 
 
@@ -339,6 +350,7 @@ class Add(QtWidgets.QWidget):
 
 
     def save(self):
+        if not self.F_name.text() or not self.L_name.text() or 
         try:
             con = db_connect()
             curs = con.cursor()
@@ -361,7 +373,7 @@ class Add(QtWidgets.QWidget):
             con.commit()
             con.close()
             self.cancel()
-        except (pymysql.err.OperationalError, OSError) as e:
+        except (pymysql.err.OperationalError, OSError, pymysql.err.DataError) as e:
             print(f'cant connect to the server {e}')
             self.err = Err(e)
             self.err.show()

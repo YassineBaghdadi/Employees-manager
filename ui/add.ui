@@ -10,6 +10,18 @@
     <height>520</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>841</width>
+    <height>520</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>841</width>
+    <height>520</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -677,6 +689,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                   </property>
                   <item row="0" column="0">
                    <widget class="QLineEdit" name="cnss">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
                     <property name="dragEnabled">
                      <bool>true</bool>
                     </property>
@@ -686,10 +704,23 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QComboBox" name="company"/>
+                   <widget class="QComboBox" name="company">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                   </widget>
                   </item>
                   <item row="0" column="1">
                    <widget class="QLineEdit" name="salary">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
                     <property name="dragEnabled">
                      <bool>true</bool>
                     </property>
@@ -699,7 +730,14 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QComboBox" name="role"/>
+                   <widget class="QComboBox" name="role">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -723,6 +761,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                <layout class="QHBoxLayout" name="horizontalLayout_5">
                 <item>
                  <widget class="QDateEdit" name="start_date">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>30</height>
+                   </size>
+                  </property>
                   <property name="maximumSize">
                    <size>
                     <width>190</width>
@@ -757,6 +801,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                 </item>
                 <item>
                  <widget class="QLabel" name="label">
+                  <property name="minimumSize">
+                   <size>
+                    <width>123</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="maximumSize">
                    <size>
                     <width>94</width>
@@ -980,6 +1030,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                </property>
                <item row="3" column="1">
                 <widget class="QLineEdit" name="address">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
                  </property>
@@ -990,6 +1046,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                </item>
                <item row="0" column="1">
                 <widget class="QLineEdit" name="F_name">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
@@ -1009,6 +1071,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                </item>
                <item row="2" column="1">
                 <widget class="QLineEdit" name="CIN">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
                  </property>
@@ -1019,6 +1087,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                </item>
                <item row="0" column="0">
                 <widget class="QLineEdit" name="L_name">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
                  </property>
@@ -1029,6 +1103,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                </item>
                <item row="3" column="0">
                 <widget class="QLineEdit" name="tel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
                  </property>
@@ -1039,6 +1119,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                </item>
                <item row="2" column="0">
                 <widget class="QDateEdit" name="BD">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
                  </property>

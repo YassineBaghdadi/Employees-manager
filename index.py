@@ -62,7 +62,7 @@ class PripareDB:
                         CIN VARCHAR(50), 
                         CNSS INT, 
                         company VARCHAR(50), 
-                        role VARCHAR(50), 
+                        role_ VARCHAR(50), 
                         status VARCHAR(50), 
                         salary INT, 
                         TEL VARCHAR(50), 
@@ -361,7 +361,7 @@ class Add(QtWidgets.QWidget):
             curs = con.cursor()
             #curs.execute("set names utf8;")
             curs.execute(f'''
-                    insert into agents (F_name, L_name, BD, CIN, CNSS, company, role, status, salary, TEL, address, img, start_date) values(
+                    insert into agents (F_name, L_name, BD, CIN, CNSS, company, role_, status, salary, TEL, address, img, start_date) values(
                     "{self.F_name.text()}",
                     "{self.L_name.text()}",
                     "{str(self.BD.date().toPyDate())}",
@@ -420,7 +420,13 @@ class Omal_list(QtWidgets.QWidget):
         self.move(300, 200)
 
         self.back_btn.clicked.connect(self.back)
+        comps = [ 'هادف غاز', 'صافكام', 'سونعيمي', 'المقهى', 'هيمكة', 'أخرى']
+        self.copanies_combo.addItems(comps)
+        self.copanies_combo.setCurrentIndex(0)
+        self.copanies_combo.currentTextChanged.connect(self.fill)
+        self.search.textChanged.connect(self.fill)
         self.fill()
+
 
         """
             self.home_table.viewport().installEventFilter(self)
@@ -442,8 +448,9 @@ class Omal_list(QtWidgets.QWidget):
             """
 
 
-    def fill(self, com = None, key=None):
-        # [self.omal_table.removeRow(0) for _ in range(self.omal_table.rowCount())]
+    def fill(self):
+        print(self.copanies_combo.currentText())
+        [self.omal_table.removeRow(0) for _ in range(self.omal_table.rowCount())]
         head = ["الإسم", "النسب", "البطاقة الوطنية", "المهمة", "الشركة", "الهاتف", "العنوان", "تاريخ الإلتحاق"]
 
         # self.omal_table.horizontalHeader().setSectionResizeMode(head.index(self.head[-1]), QtWidgets.QHeaderView.Stretch)
@@ -452,26 +459,21 @@ class Omal_list(QtWidgets.QWidget):
 
         con = db_connect()
         curs = con.cursor()
-        qury = ""
-        here i am
-        if com and key:
-            qury = f"""SELECT F_name, L_name, CIN, role, company, TEL, address, start_date FROM 
-            (SELECT * FROM agents WHERE status like '1' and company like '{com}') WHERE F_name LIKE '{key}' or L_name LIKE '{key}' CIN LIKE '{key}' """
+        #qury = ""
 
-        elif key and not com:
-            qury = f"""SELECT F_name, L_name, CIN, role, company, TEL, address, start_date FROM 
-                        (SELECT * FROM agents WHERE status like '1') WHERE F_name LIKE '{key}' or L_name LIKE '{key}' CIN LIKE '{key}' """
+        if self.search.text():
+            qury = f"""SELECT F_name, L_name, CIN, role_, company, TEL, address, start_date FROM agents WHERE ( status like '1' and company like '%{self.copanies_combo.currentText()}%') and (F_name LIKE '%{self.search.text()}%' or L_name LIKE '%{self.search.text()}%' or CIN LIKE '%{self.search.text()}%'); """
 
-        elif com and not key:
-            qury = f"""SELECT  F_name, L_name, CIN, role, company, TEL, address, start_date  FROM agents WHERE status like '1' and company like '{com}' """
 
         else:
-            curs.execute(
-                f"SELECT F_name, L_name, CIN, role, company, TEL, address, start_date FROM agents WHERE status like '1';")
+            qury = f"SELECT F_name, L_name, CIN, role_, company, TEL, address, start_date FROM agents WHERE status like '1' and company like '{self.copanies_combo.currentText()}';"
 
         curs.execute(qury)
 
         data = curs.fetchall()
+        print(data)
+        if not data :
+            return
         self.omal_table.setColumnCount(len(data[0]))
         self.omal_table.setHorizontalHeaderLabels(head)
         # self.omal_table.horizontalHeader().setSectionResizeMode(head.index(self.head[-1]), QtWidgets.QHeaderView.Stretch)
@@ -479,7 +481,7 @@ class Omal_list(QtWidgets.QWidget):
         # self.omal_table.setRowCount(len(data))
         for i in range(len(head)):
             self.omal_table.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-        print(data)
+
         for r in range(len(data)):
             self.omal_table.insertRow(0)
             for c in range(len(data[r])):

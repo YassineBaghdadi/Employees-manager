@@ -3,7 +3,7 @@ import webbrowser
 import pymysql, sys, os, selenium
 import requests
 from firebase import firebase
-
+import datetime
 
 from PyQt5 import uic, QtCore, QtWidgets, QtGui
 
@@ -52,40 +52,40 @@ class PripareDB:
                         F_name VARCHAR(20), 
                         L_name VARCHAR(20), 
                         username VARCHAR(20), 
-                        passwrd VARCHAR(20));''')
+                        passwrd VARCHAR(20)) ENGINE = INNODB;''')
 
             curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.agents(
                         id INT AUTO_INCREMENT PRIMARY KEY, 
-                        F_name VARCHAR(20), 
-                        L_name VARCHAR(20), 
+                        F_name VARCHAR(50), 
+                        L_name VARCHAR(50), 
                         BD VARCHAR(50), 
-                        CIN VARCHAR(20), 
+                        CIN VARCHAR(50), 
                         CNSS INT, 
-                        company VARCHAR(20), 
-                        role VARCHAR(20), 
-                        status VARCHAR(20), 
+                        company VARCHAR(50), 
+                        role VARCHAR(50), 
+                        status VARCHAR(50), 
                         salary INT, 
-                        TEL VARCHAR(20), 
+                        TEL VARCHAR(50), 
                         address VARCHAR(50), 
                         img LONGBLOB, 
-                        start_date VARCHAR(30), 
-                        end_date VARCHAR(30));''')
+                        start_date VARCHAR(50), 
+                        end_date VARCHAR(50)) ENGINE = INNODB;''')
 
             curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.history (
                         id INT AUTO_INCREMENT PRIMARY KEY, 
                         user INT, 
-                        pc VARCHAR(20), 
-                        opr VARCHAR(20), 
+                        pc VARCHAR(50), 
+                        opr VARCHAR(50), 
                         agent INT,
                         FOREIGN KEY (user) REFERENCES {DB}.users(id),
-                        FOREIGN KEY (agent) REFERENCES {DB}.agents(id))
+                        FOREIGN KEY (agent) REFERENCES {DB}.agents(id)) ENGINE = INNODB
                         ;''')
 
             curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.abss (
                         id INT AUTO_INCREMENT PRIMARY KEY, 
                         agent INT, 
-                        abss_date VARCHAR(20),
-                        FOREIGN KEY (agent) REFERENCES {DB}.agents(id));''')
+                        abss_date VARCHAR(50),
+                        FOREIGN KEY (agent) REFERENCES {DB}.agents(id)) ENGINE = INNODB;''')
 
             con.commit()
             con.close()
@@ -350,10 +350,16 @@ class Add(QtWidgets.QWidget):
 
 
     def save(self):
-        if not self.F_name.text() or not self.L_name.text() or 
+        print(str(self.BD.date().toPyDate()))
+        print(str(self.company.currentText()))
+        print(str(self.role.currentText()))
+        if not self.F_name.text() or not self.L_name.text() or int(str(datetime.date.today().strftime("%Y-%m-%d")).split("-")[0]) - int(str(self.BD.date().toPyDate()).split("-")[0]) < 14 or self.CIN.text() == "" or self.salary.text() == "":
+            QtWidgets.QMessageBox.about(self, "ERROR", "معلومات غير مقبولة")
+            return
         try:
             con = db_connect()
             curs = con.cursor()
+            #curs.execute("set names utf8;")
             curs.execute(f'''
                     insert into agents (F_name, L_name, BD, CIN, CNSS, company, role, status, salary, TEL, address, img, start_date) values(
                     "{self.F_name.text()}",
@@ -369,11 +375,11 @@ class Add(QtWidgets.QWidget):
                     "{self.address.text()}",
                     " ",
                     "{str(self.start_date.date().toPyDate())}"
-                )''')#todo fix the image storage
+                )''')#todo fix the image storage and start date validator for the db
             con.commit()
             con.close()
             self.cancel()
-        except (pymysql.err.OperationalError, OSError, pymysql.err.DataError) as e:
+        except (pymysql.err.OperationalError, OSError, pymysql.err.DataError, pymysql.err.ProgrammingError) as e:
             print(f'cant connect to the server {e}')
             self.err = Err(e)
             self.err.show()
@@ -414,7 +420,72 @@ class Omal_list(QtWidgets.QWidget):
         self.move(300, 200)
 
         self.back_btn.clicked.connect(self.back)
+        self.fill()
 
+        """
+            self.home_table.viewport().installEventFilter(self)
+
+            def eventFilter(self, source, event):
+                if (event.type() == QtCore.QEvent.MouseButtonDblClick and
+                        source is self.home_table.viewport()):
+                    item = self.home_table.itemAt(event.pos())
+                    if item is not None:
+                        print('dblclick:', item.row(), item.column())
+                        if self.comboBox.currentIndex() == 1:
+                            row = [self.home_table.item(item.row(), c).text() for c in range(self.home_table.columnCount())]
+                            print(row)
+                            self.prod_inf = Product_info([self.home_table.item(item.row(), 0).text(), item.column()])
+                            self.prod_inf.show()
+                        elif self.comboBox.currentIndex() == 0:
+                            self.search_txt.setText(self.home_table.item(item.row(), item.column()).text())
+                return super(Home, self).eventFilter(source, event)
+            """
+
+
+    def fill(self, com = None, key=None):
+        # [self.omal_table.removeRow(0) for _ in range(self.omal_table.rowCount())]
+        head = ["الإسم", "النسب", "البطاقة الوطنية", "المهمة", "الشركة", "الهاتف", "العنوان", "تاريخ الإلتحاق"]
+
+        # self.omal_table.horizontalHeader().setSectionResizeMode(head.index(self.head[-1]), QtWidgets.QHeaderView.Stretch)
+        # for i in range(len(head)):
+        #     self.omal_table.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+
+        con = db_connect()
+        curs = con.cursor()
+        qury = ""
+        here i am
+        if com and key:
+            qury = f"""SELECT F_name, L_name, CIN, role, company, TEL, address, start_date FROM 
+            (SELECT * FROM agents WHERE status like '1' and company like '{com}') WHERE F_name LIKE '{key}' or L_name LIKE '{key}' CIN LIKE '{key}' """
+
+        elif key and not com:
+            qury = f"""SELECT F_name, L_name, CIN, role, company, TEL, address, start_date FROM 
+                        (SELECT * FROM agents WHERE status like '1') WHERE F_name LIKE '{key}' or L_name LIKE '{key}' CIN LIKE '{key}' """
+
+        elif com and not key:
+            qury = f"""SELECT  F_name, L_name, CIN, role, company, TEL, address, start_date  FROM agents WHERE status like '1' and company like '{com}' """
+
+        else:
+            curs.execute(
+                f"SELECT F_name, L_name, CIN, role, company, TEL, address, start_date FROM agents WHERE status like '1';")
+
+        curs.execute(qury)
+
+        data = curs.fetchall()
+        self.omal_table.setColumnCount(len(data[0]))
+        self.omal_table.setHorizontalHeaderLabels(head)
+        # self.omal_table.horizontalHeader().setSectionResizeMode(head.index(self.head[-1]), QtWidgets.QHeaderView.Stretch)
+        # self.omal_table.resizeColumnsToContents()
+        # self.omal_table.setRowCount(len(data))
+        for i in range(len(head)):
+            self.omal_table.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+        print(data)
+        for r in range(len(data)):
+            self.omal_table.insertRow(0)
+            for c in range(len(data[r])):
+                self.omal_table.setItem(0, c, QtWidgets.QTableWidgetItem(data[r][c]))
+
+        con.close()
 
     def back(self):
         self.main = Omal()
@@ -457,7 +528,7 @@ if __name__ == '__main__':
             print('there is an internet')
             ADMIN_ALLOWED = int(firebase.FirebaseApplication('https://p-e-i-5ea0c.firebaseio.com/', None).get('HadefGaz/empoyee_salary_manager', ''))
 
-        except requests.exceptions.ConnectionError as e:
+        except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
             print(f'no internet : {e}')
 
         if not ADMIN_ALLOWED:

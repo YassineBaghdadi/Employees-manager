@@ -119,7 +119,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QTableView" name="story_table"/>
+      <widget class="QTableWidget" name="omal_table">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

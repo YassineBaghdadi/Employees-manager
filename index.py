@@ -2,7 +2,7 @@ import webbrowser
 #test changing
 import pymysql, sys, os, selenium
 import requests
-from firebase import firebase
+# from firebase import firebase
 import datetime
 
 from PyQt5 import uic, QtCore, QtWidgets, QtGui
@@ -17,7 +17,7 @@ from PyQt5 import uic, QtCore, QtWidgets, QtGui
 
 # print('from firebase',ADMIN_ALLOWED)
 CURRENT_USER = 'Anonymous'
-
+ADMIN_ALLOWED = 1
 #todo create the tables if not exists
 
 HOST = '192.168.1.110'
@@ -32,70 +32,115 @@ def db_connect():
 class PripareDB:
     def __init__(self):
         print('preparing the DB')
-        try:
-            con = pymysql.connect(host=HOST, user=SERVER_USERNAME, password=SERVER_PASSWORD)
 
-            if con:
-                print('connected ...')
-            else:
-                print('connecting failed')
-                # exit()
 
-            curs = con.cursor()
+        if os.path.isfile(os.path.join(os.path.dirname(__file__), 'i.json')):
+            print('the file is here ')
+            try:
+                # try:
+                #     print('trying to connect to internet ...')
+                #     r = requests.get('http://172.217.168.164', timeout=2)
+                #     print('there is an internet')
+                # except Exception as e:
+                #     print(f'{e}')
+                global ADMIN_ALLOWED
+                # try:
+                #
+                #     ADMIN_ALLOWED = int(firebase.FirebaseApplication('https://p-e-i-5ea0c.firebaseio.com/', None).get(
+                #         'HadefGaz/empoyee_salary_manager', ''))
+                # except:
+                #     pass
+                if not ADMIN_ALLOWED:
+                    print('the admin has stopped the app remotly')
+                    os.remove(os.path.join(os.path.dirname(__file__), 'i.json'))
+                    err = Err('SYSTEM DOWN CALL THE DEVELOPER ')
+                    err.show()
+                    return
 
-            curs.execute(f'CREATE DATABASE IF NOT EXISTS {DB};')
 
-            # curs.execute('use HadefGaz;')
+                try:
+                    con = pymysql.connect(host=HOST, user=SERVER_USERNAME, password=SERVER_PASSWORD)
 
-            curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.users (
-                        id INT AUTO_INCREMENT PRIMARY KEY, 
-                        F_name VARCHAR(20), 
-                        L_name VARCHAR(20), 
-                        username VARCHAR(20), 
-                        passwrd VARCHAR(20)) ENGINE = INNODB;''')
+                    if con:
+                        print('connected ...')
+                    else:
+                        print('connecting failed')
+                        err = Err('SYSTEM DOWN CALL THE DEVELOPER CQNT CONNECT TO DB')
+                        err.show()
+                        return
 
-            curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.agents(
-                        id INT AUTO_INCREMENT PRIMARY KEY, 
-                        F_name VARCHAR(50), 
-                        L_name VARCHAR(50), 
-                        BD VARCHAR(50), 
-                        CIN VARCHAR(50), 
-                        CNSS INT, 
-                        company VARCHAR(50), 
-                        role_ VARCHAR(50), 
-                        status VARCHAR(50), 
-                        salary INT, 
-                        TEL VARCHAR(50), 
-                        address VARCHAR(50), 
-                        img LONGBLOB, 
-                        start_date VARCHAR(50), 
-                        end_date VARCHAR(50)) ENGINE = INNODB;''')
+                    curs = con.cursor()
 
-            curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.history (
-                        id INT AUTO_INCREMENT PRIMARY KEY, 
-                        user INT, 
-                        pc VARCHAR(50), 
-                        opr VARCHAR(50), 
-                        agent INT,
-                        FOREIGN KEY (user) REFERENCES {DB}.users(id),
-                        FOREIGN KEY (agent) REFERENCES {DB}.agents(id)) ENGINE = INNODB
-                        ;''')
+                    curs.execute(f'CREATE DATABASE IF NOT EXISTS {DB};')
 
-            curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.abss (
-                        id INT AUTO_INCREMENT PRIMARY KEY, 
-                        agent INT, 
-                        abss_date VARCHAR(50),
-                        FOREIGN KEY (agent) REFERENCES {DB}.agents(id)) ENGINE = INNODB;''')
+                    # curs.execute('use HadefGaz;')
 
-            con.commit()
-            con.close()
-            self.login = Login()
-            self.login.show()
-        except (pymysql.err.OperationalError, OSError) as e:
-            print(f'cant connect to the server {e}')
-            self.err = Err(e)
-            self.err.show()
+                    curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.users (
+                                id INT AUTO_INCREMENT PRIMARY KEY, 
+                                F_name VARCHAR(20), 
+                                L_name VARCHAR(20), 
+                                username VARCHAR(20), 
+                                passwrd VARCHAR(20)) ENGINE = INNODB;''')
 
+                    curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.agents(
+                                id INT AUTO_INCREMENT PRIMARY KEY, 
+                                F_name VARCHAR(50), 
+                                L_name VARCHAR(50), 
+                                BD VARCHAR(50), 
+                                CIN VARCHAR(50), 
+                                CNSS INT, 
+                                company VARCHAR(50), 
+                                role_ VARCHAR(50), 
+                                status VARCHAR(50), 
+                                salary INT, 
+                                TEL VARCHAR(50), 
+                                address VARCHAR(50), 
+                                img LONGBLOB, 
+                                start_date VARCHAR(50), 
+                                end_date VARCHAR(50)) ENGINE = INNODB;''')
+
+                    curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.history (
+                                id INT AUTO_INCREMENT PRIMARY KEY, 
+                                user INT, 
+                                pc VARCHAR(50), 
+                                opr VARCHAR(50), 
+                                agent INT,
+                                FOREIGN KEY (user) REFERENCES {DB}.users(id),
+                                FOREIGN KEY (agent) REFERENCES {DB}.agents(id)) ENGINE = INNODB
+                                ;''')
+
+                    curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.abss (
+                                id INT AUTO_INCREMENT PRIMARY KEY, 
+                                agent INT, 
+                                abss_date VARCHAR(50),
+                                FOREIGN KEY (agent) REFERENCES {DB}.agents(id)) ENGINE = INNODB;''')
+
+
+                    curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.paids (
+                                id INT AUTO_INCREMENT PRIMARY KEY, 
+                                agent INT,
+                                amount VARCHAR(50),
+                                paid_date VARCHAR(50),
+                                FOREIGN KEY (agent) REFERENCES {DB}.agents(id)) ENGINE = INNODB;''')
+
+                    con.commit()
+                    con.close()
+                    self.login = Login()
+                    self.login.show()
+                except (pymysql.err.OperationalError, OSError) as e:
+                    print(f'cant connect to the server {e}')
+                    self.err = Err(e)
+                    self.err.show()
+
+            except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
+                print(f'no internet : {e}')
+
+
+
+        else:
+            print('no file found')
+            err = Err('SYSTEM DOWN CALL THE DEVELOPER ')
+            err.show()
 
 class Err(QtWidgets.QWidget):
     def __init__(self, err=None):
@@ -120,8 +165,6 @@ class Err(QtWidgets.QWidget):
 
         return super(Err, self).eventFilter(o, e)
 
-
-
 # class Index(QtWidgets.QWidget):
 #     def __init__(self):
 #         super(Index, self).__init__()
@@ -136,54 +179,49 @@ class Err(QtWidgets.QWidget):
 #             self.index_content.itemAt(i).widget().setParent(None)
 #         self.index_content.addWidget(widget)
 
-
 class Login(QtWidgets.QWidget):
     def __init__(self):
         super(Login, self).__init__(None)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'login.ui'), self)
 
-        if not ADMIN_ALLOWED:
-            self.err = Err('SYSTEM DOWN CALL DEVLOPER ')
-            self.err.show()
-            self.close()
-        else:
-            print('ADMIN ALLOWED')
+        # if not ADMIN_ALLOWED:
+        #     self.err = Err('SYSTEM DOWN CALL DEVLOPER ')
+        #     self.err.show()
+        #     self.close()
+        # else:
+        #     print('ADMIN ALLOWED')
 
         self.move(300, 200)
         self.enter.setFocus(True)
 
         self.enter.clicked.connect(self.login)
+
+        # self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
         
-
-
 
     def login(self):
-        user = ''
-    
-        
         try:
             print('opening main page ...')
             con = db_connect()
             curs = con.cursor()
             curs.execute(f'SELECT F_name, L_name FROM users WHERE username like "{self.username.text()}" and passwrd like "{self.passwrd.text()}";')
             user = curs.fetchone()
-            print(f"the current users is : {user}")
+            print(f"the current user is : {user}")
+            if user:
+                global CURRENT_USER
+                CURRENT_USER = f'{user[0]} {user[1]}'
+                self.main_ = Main()
+                self.main_.show()
+                self.close()
+
+            else:
+                self.err = Err(err='المعلومات غير صحيحة')
+                self.err.show()
+            con.close()
         except Exception as e:
             self.err = Err(err=e)
             self.close()
             self.err.show()
-
-        if user:
-            global CURRENT_USER
-            CURRENT_USER = f'{user[0]} {user[1]}'
-            self.main = Main()
-            self.close()
-            self.main.show()
-        else:
-            self.err = Err(err='المعلومات غير صحيحة')
-            self.err.show()
-
-        
 
 
 class Main(QtWidgets.QFrame):
@@ -221,26 +259,18 @@ class Main(QtWidgets.QFrame):
         #     if o == self.history_btn :
         #         self.history_btn.setStyleSheet('border: 1px solid blue;')
 
-
-        if e.type() == QtCore.QEvent.HoverEnter:
-            if o == self.omal_btn :
-                print('omal hover in successfully')
-                self.hover_in(self.omal_btn)
-            if o == self.history_btn :
-                self.hover_in(self.history_btn)
+        #
+        # if e.type() == QtCore.QEvent.HoverEnter:
+        #     if o == self.omal_btn :
+        #         print('omal hover in successfully')
+        #         self.hover_in(self.omal_btn)
+        #     if o == self.history_btn :
+        #         self.hover_in(self.history_btn)
 
 
 
 
         return super(Main, self).eventFilter(o, e)
-
-    def hover_in(self, o):
-        o.setStyleSheet('border: 5px solid blue;')
-
-    def hover_out(self, o):
-        o.setStyleSheet('border: 5px solid blue;')
-
-
 
 
 class Omal(QtWidgets.QWidget):
@@ -324,6 +354,7 @@ class History(QtWidgets.QWidget):
         self.close()
         self.main.show()
 
+
 class Add(QtWidgets.QWidget):
     def __init__(self):
         super(Add, self).__init__()
@@ -340,7 +371,6 @@ class Add(QtWidgets.QWidget):
         self.salary.setValidator(QtGui.QIntValidator())
         self.company.addItems(self.companies)
         self.role.addItems(self.roles)
-        #todo here stopped
 
 
     def back(self):
@@ -406,12 +436,57 @@ class Pay(QtWidgets.QWidget):
         self.move(300, 200)
 
         self.back_btn.clicked.connect(self.back)
+        self.con = db_connect()
+        self.curs = self.con.cursor()
+        self.curs.execute("SELECT F_name, L_name, id, company FROM agents WHERE status like '1' ORDER BY F_name ASC ;")
+        agents = [f"{i[0]} {i[1]} -{i[2]}- {i[3]}" for i in self.curs.fetchall()]
+        agents.insert(0, '')
+        self.omal_combo.addItems(agents)
+        self.omal_combo.currentTextChanged.connect(self.fill)
+        self.pay_btn.clicked.connect(self.pay)
+
+
+    def pay(self):
+        self.curs.execute(f'''insert into paids (agent, amount, paid_date) value ({int(self.omal_combo.currentText().split('-')[1])}, "{self.to_pay.text()}", "{datetime.date.today().strftime("%Y-%m-%d")}")''')
+        self.con.commit()
+        self.to_pay.setText('')
+        self.omal_combo.setCurrentIndex(0)
+
+    def fill(self):
+        if not self.omal_combo.currentText():
+            self.salary.setText('0 DH')
+            self.working_period.setText('0')
+            self.start_date.setText('0')
+            self.abssences.setText('0')
+            self.amount_paid.setText('0')
+            self.rest.setText('0')
+            return
+
+
+        self.curs.execute(f'''SELECT salary, start_date FROM agents WHERE id = {int(self.omal_combo.currentText().split('-')[1])}''')
+        salary, start_date = self.curs.fetchone()
+        self.curs.execute(f'''SELECT amount from paids where agent = {int(self.omal_combo.currentText().split('-')[1])} and paid_date like "{datetime.date.today().strftime("%Y-%m")}%"''')
+
+        amount_paids = sum([float(i[0]) for i in self.curs.fetchall()])
+        print(f'amount paids ({type(amount_paids)}) = {amount_paids}')
+        self.curs.execute(f'''select count(id) from abss where agent = {int(self.omal_combo.currentText().split('-')[1])} and abss_date like "{datetime.date.today().strftime("%Y-%m")}%"''')
+        mounths_abbs_days = self.curs.fetchone()
+        print(mounths_abbs_days)
+
+        self.salary.setText(f'{str(salary)} DH')
+        self.start_date.setText(start_date)
+        self.amount_paid.setText(str(amount_paids) if amount_paids else '0')
+        day = salary / 30
+
+        self.rest.setText(str(round((salary-(amount_paids+(day * int(mounths_abbs_days[0])))), 2)))
 
 
     def back(self):
+        self.con.close()
         self.main = Omal()
         self.close()
         self.main.show()
+
 
 class Omal_list(QtWidgets.QWidget):
     def __init__(self):
@@ -502,8 +577,58 @@ class Checkin(QtWidgets.QWidget):
 
         self.move(300, 200)
         self.cancel.clicked.connect(self.back)
+        self.con = db_connect()
+        self.curs = self.con.cursor()
+        self.curs.execute("SELECT F_name, L_name, id, company FROM agents WHERE status like '1'  ORDER BY F_name ASC ;")
+        agents = [f"{i[0]} {i[1]} -{i[2]}- {i[3]}" for i in self.curs.fetchall()]
+        agents.insert(0, '')
+        print(agents)
+
+        self.omal_combo.addItems(agents)
+        self.add.clicked.connect(self.add_)
+        self.abss_date.setDate(QtCore.QDate.currentDate())
+        self.head = ["الإسم", "النسب", "البطاقة الوطنية", "الشركة", "الهاتف", "تاريخ الغياب"]
+        # for i in range(len(self.head)):
+        #     self.table_.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+        self.fill()
+        self.omal_combo.currentTextChanged.connect(self.fill)
+        self.abss_date.dateChanged.connect(self.fill)
+
+    def fill(self):
+        [self.table_.removeRow(0) for _ in range(self.table_.rowCount())]
+        if not self.omal_combo.currentText():
+            self.curs.execute(f"SELECT agents.F_name, agents.L_name, agents.CIN, agents.company, agents.TEL, abss.abss_date FROM agents INNER JOIN abss ON abss.agent = agents.id where abss.abss_date like '{str(self.abss_date.date().toPyDate())}';")
+        else:
+            print(int(self.omal_combo.currentText().split('-')[1]))
+            self.curs.execute(f"SELECT agents.F_name, agents.L_name, agents.CIN, agents.company, agents.TEL, abss.abss_date FROM agents INNER JOIN abss ON abss.agent = agents.id where abss.agent = {int(self.omal_combo.currentText().split('-')[1])};")
+
+
+        data = self.curs.fetchall()
+        print(data)
+        if not data:
+            return
+
+        self.table_.setColumnCount(len(data[0]))
+        self.table_.setHorizontalHeaderLabels(self.head)
+
+        for r in range(len(data)):
+            self.table_.insertRow(0)
+            for c in range(len(data[r])):
+                self.table_.horizontalHeader().setSectionResizeMode(c, QtWidgets.QHeaderView.Stretch)
+                self.table_.setItem(0, c, QtWidgets.QTableWidgetItem(data[r][c]))
+
+
+    def add_(self):
+        self.curs.execute(f'''select * from abss where agent like "{str(self.omal_combo.currentText().split('-')[1])}" and abss_date like "{str(self.abss_date.date().toPyDate())}"''')
+        if self.curs.fetchall():
+            QtWidgets.QMessageBox.about(self, "ERROR", "العامل غائب بالفعل")
+            return
+
+        self.curs.execute(f"insert into abss(agent, abss_date) value ('{str(self.omal_combo.currentText().split('-')[1])}', '{str(self.abss_date.date().toPyDate())}')")
+        self.con.commit()
 
     def back(self):
+        self.con.close()
         self.main = Omal()
         self.close()
         self.main.show()
@@ -515,39 +640,7 @@ class Logs():
 
 
 
-
 if __name__ == '__main__':
-    # print(f'from firebase : {ADMIN_ALLOWED}')
-    # print(f'Current User before : {CURRENT_USER}')
     app = QtWidgets.QApplication(sys.argv)
-
-    ADMIN_ALLOWED = 1
-    if os.path.isfile(os.path.join(os.path.dirname(__file__), 'i.json')):
-        print('the file is here ')
-        try:
-            print('trying to connect to internet ...')
-            r = requests.get('http://172.217.168.164', timeout=2)
-            print('there is an internet')
-            ADMIN_ALLOWED = int(firebase.FirebaseApplication('https://p-e-i-5ea0c.firebaseio.com/', None).get('HadefGaz/empoyee_salary_manager', ''))
-
-        except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
-            print(f'no internet : {e}')
-
-        if not ADMIN_ALLOWED:
-                print('the admin has stopped the app remotly')
-                os.remove(os.path.join(os.path.dirname(__file__), 'i.json'))
-                err = Err('SYSTEM DOWN CALL THE DEVELOPER ')
-                err.show()
-        else:
-
-                print('go to priparing db class ')
-                pr = PripareDB()
-    else:
-        print('no file found')
-        err = Err('SYSTEM DOWN CALL THE DEVELOPER ')
-        err.show()
-
-
-    # err = Err(err='test')
-    # err.show()
-    app.exec_()
+    start = PripareDB()
+    sys.exit(app.exec_())

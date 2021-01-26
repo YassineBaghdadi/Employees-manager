@@ -162,7 +162,11 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QTableWidget" name="table"/>
+         <widget class="QTableWidget" name="table_">
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QFrame" name="frame_3">

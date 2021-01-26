@@ -88,7 +88,7 @@ class PripareDB:
                                 L_name VARCHAR(50), 
                                 BD VARCHAR(50), 
                                 CIN VARCHAR(50), 
-                                CNSS INT, 
+                                CNSS VARCHAR(50), 
                                 company VARCHAR(50), 
                                 role_ VARCHAR(50), 
                                 status VARCHAR(50), 
@@ -197,7 +197,7 @@ class Login(QtWidgets.QWidget):
         self.enter.clicked.connect(self.login)
 
         # self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
-        
+
 
     def login(self):
         try:
@@ -386,26 +386,60 @@ class Add(QtWidgets.QWidget):
         if not self.F_name.text() or not self.L_name.text() or int(str(datetime.date.today().strftime("%Y-%m-%d")).split("-")[0]) - int(str(self.BD.date().toPyDate()).split("-")[0]) < 14 or self.CIN.text() == "" or self.salary.text() == "":
             QtWidgets.QMessageBox.about(self, "ERROR", "معلومات غير مقبولة")
             return
+        # con = db_connect()
+        # print('connected')
+        # curs = con.cursor()
+        # curs.execute(f'''
+        #                     insert into agents (F_name, L_name, BD, CIN, CNSS, company, role_, status, salary, TEL, address, img, start_date) values(
+        #                     "{self.F_name.text()}",
+        #                     "{self.L_name.text()}",
+        #                     "{str(self.BD.date().toPyDate())}",
+        #                     "{self.CIN.text()}",
+        #                      {self.cnss.text()},
+        #                     "{str(self.company.currentText())}",
+        #                     "{str(self.role.currentText())}",
+        #                     "{1}",
+        #                     "{self.salary.text()}",
+        #                     "{self.tel.text()}",
+        #                     "{self.address.text()}",
+        #                     " ",
+        #                     "{str(self.start_date.date().toPyDate())}"
+        #                 )''')
+
         try:
             con = db_connect()
+            print('connected')
             curs = con.cursor()
-            #curs.execute("set names utf8;")
+            print( f"{self.F_name.text()}",
+                    f"{self.L_name.text()}",
+                    f"{str(self.BD.date().toPyDate())}",
+                    f"{self.CIN.text()}",
+                     f"{self.cnss.text()}",
+                    f"{str(self.company.currentText())}",
+                    f"{str(self.role.currentText())}",
+                    f"{1}",
+                    f"{self.salary.text()}",
+                    f"{self.tel.text()}",
+                    f"{self.address.text()}",
+                    f" ",
+                    f"{str(self.start_date.date().toPyDate())}")
+            # curs.execute("set names utf8;")
             curs.execute(f'''
                     insert into agents (F_name, L_name, BD, CIN, CNSS, company, role_, status, salary, TEL, address, img, start_date) values(
                     "{self.F_name.text()}",
                     "{self.L_name.text()}",
                     "{str(self.BD.date().toPyDate())}",
                     "{self.CIN.text()}",
-                     {self.cnss.text()},
+                    "{self.cnss.text()}",
                     "{str(self.company.currentText())}",
                     "{str(self.role.currentText())}",
                     "{1}",
-                    "{self.salary.text()}",
+                    {int(self.salary.text())},
                     "{self.tel.text()}",
                     "{self.address.text()}",
                     " ",
                     "{str(self.start_date.date().toPyDate())}"
-                )''')#todo fix the image storage and start date validator for the db
+                );''')#todo fix the image storage and start date validator for the db
             con.commit()
             con.close()
             self.cancel()
@@ -447,6 +481,14 @@ class Pay(QtWidgets.QWidget):
 
 
     def pay(self):
+        if self.omal_combo.currentIndex() == 0:
+            QtWidgets.QMessageBox.about(self, "ERROR", "إختر العامل أولا")
+            return
+
+        if not self.to_pay.text() :
+            QtWidgets.QMessageBox.about(self, "ERROR", "أدخل المبلغ أولا")
+            return
+
         self.curs.execute(f'''insert into paids (agent, amount, paid_date) value ({int(self.omal_combo.currentText().split('-')[1])}, "{self.to_pay.text()}", "{datetime.date.today().strftime("%Y-%m-%d")}")''')
         self.con.commit()
         self.to_pay.setText('')
@@ -465,9 +507,10 @@ class Pay(QtWidgets.QWidget):
 
         self.curs.execute(f'''SELECT salary, start_date FROM agents WHERE id = {int(self.omal_combo.currentText().split('-')[1])}''')
         salary, start_date = self.curs.fetchone()
-        self.curs.execute(f'''SELECT amount from paids where agent = {int(self.omal_combo.currentText().split('-')[1])} and paid_date like "{datetime.date.today().strftime("%Y-%m")}%"''')
-
-        amount_paids = sum([float(i[0]) for i in self.curs.fetchall()])
+        self.curs.execute(f'''SELECT count(id), amount from paids where agent = {int(self.omal_combo.currentText().split('-')[1])} and paid_date like "{datetime.date.today().strftime("%Y-%m")}%"''')
+        dt = [i for i in self.curs.fetchall() if i]
+        print(dt)
+        amount_paids = sum([float(i[1]) for i in dt]) if dt[0][0] else 0
         print(f'amount paids ({type(amount_paids)}) = {amount_paids}')
         self.curs.execute(f'''select count(id) from abss where agent = {int(self.omal_combo.currentText().split('-')[1])} and abss_date like "{datetime.date.today().strftime("%Y-%m")}%"''')
         mounths_abbs_days = self.curs.fetchone()
@@ -599,8 +642,9 @@ class Checkin(QtWidgets.QWidget):
         if not self.omal_combo.currentText():
             self.curs.execute(f"SELECT agents.F_name, agents.L_name, agents.CIN, agents.company, agents.TEL, abss.abss_date FROM agents INNER JOIN abss ON abss.agent = agents.id where abss.abss_date like '{str(self.abss_date.date().toPyDate())}';")
         else:
-            print(int(self.omal_combo.currentText().split('-')[1]))
-            self.curs.execute(f"SELECT agents.F_name, agents.L_name, agents.CIN, agents.company, agents.TEL, abss.abss_date FROM agents INNER JOIN abss ON abss.agent = agents.id where abss.agent = {int(self.omal_combo.currentText().split('-')[1])};")
+            if '-' in self.omal_combo.currentText():
+                print(int(self.omal_combo.currentText().split('-')[1]))
+                self.curs.execute(f"SELECT agents.F_name, agents.L_name, agents.CIN, agents.company, agents.TEL, abss.abss_date FROM agents INNER JOIN abss ON abss.agent = agents.id where abss.agent = {int(self.omal_combo.currentText().split('-')[1])};")
 
 
         data = self.curs.fetchall()
@@ -619,6 +663,11 @@ class Checkin(QtWidgets.QWidget):
 
 
     def add_(self):
+        if self.omal_combo.currentIndex() == 0:
+            QtWidgets.QMessageBox.about(self, "ERROR", "إختر العامل أولا")
+            return
+
+
         self.curs.execute(f'''select * from abss where agent like "{str(self.omal_combo.currentText().split('-')[1])}" and abss_date like "{str(self.abss_date.date().toPyDate())}"''')
         if self.curs.fetchall():
             QtWidgets.QMessageBox.about(self, "ERROR", "العامل غائب بالفعل")
@@ -642,5 +691,6 @@ class Logs():
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
+    app.setWindowIcon(QtGui.QIcon('src/img/logo.png'))
     start = PripareDB()
     sys.exit(app.exec_())

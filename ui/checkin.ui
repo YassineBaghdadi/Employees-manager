@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>746</width>
-    <height>449</height>
+    <height>478</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -87,7 +87,7 @@
              </size>
             </property>
             <property name="displayFormat">
-             <string>d/M/yyyy</string>
+             <string>d/MM/yyyy</string>
             </property>
             <property name="calendarPopup">
              <bool>true</bool>
@@ -108,6 +108,12 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <family>Arial Unicode MS</family>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
             <property name="layoutDirection">
              <enum>Qt::RightToLeft</enum>
             </property>
@@ -116,6 +122,9 @@
             </property>
             <property name="editable">
              <bool>false</bool>
+            </property>
+            <property name="maxVisibleItems">
+             <number>5</number>
             </property>
             <property name="frame">
              <bool>false</bool>

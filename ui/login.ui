@@ -89,6 +89,12 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <family>Andalus</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
@@ -132,6 +138,12 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <family>Andalus</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
           <property name="echoMode">
            <enum>QLineEdit::Password</enum>
           </property>
@@ -171,9 +183,10 @@
           </property>
           <property name="font">
            <font>
+            <family>Andalus</family>
             <pointsize>16</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
+            <weight>50</weight>
+            <bold>false</bold>
            </font>
           </property>
           <property name="text">

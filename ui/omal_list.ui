@@ -77,6 +77,27 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="add">
+          <property name="maximumSize">
+           <size>
+            <width>84</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>FreeSerif</family>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>إظافة</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -99,7 +120,8 @@
           </property>
           <property name="font">
            <font>
-            <pointsize>11</pointsize>
+            <family>Arial Unicode MS</family>
+            <pointsize>12</pointsize>
            </font>
           </property>
          </widget>
@@ -120,7 +142,8 @@
           </property>
           <property name="font">
            <font>
-            <pointsize>11</pointsize>
+            <family>Andalus</family>
+            <pointsize>12</pointsize>
            </font>
           </property>
           <property name="placeholderText">
@@ -136,6 +159,12 @@
      </item>
      <item>
       <widget class="QTableWidget" name="omal_table">
+       <property name="font">
+        <font>
+         <family>Microsoft Sans Serif</family>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
        <property name="layoutDirection">
         <enum>Qt::RightToLeft</enum>
        </property>

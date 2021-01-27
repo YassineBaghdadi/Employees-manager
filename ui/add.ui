@@ -695,6 +695,15 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                       <height>30</height>
                      </size>
                     </property>
+                    <property name="font">
+                     <font>
+                      <family>Arial Unicode MS</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
                     <property name="dragEnabled">
                      <bool>true</bool>
                     </property>
@@ -711,6 +720,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                       <height>30</height>
                      </size>
                     </property>
+                    <property name="font">
+                     <font>
+                      <family>Arial Unicode MS</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
                     <property name="layoutDirection">
                      <enum>Qt::RightToLeft</enum>
                     </property>
@@ -723,6 +738,15 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                       <width>0</width>
                       <height>30</height>
                      </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Arial Unicode MS</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
                     </property>
                     <property name="dragEnabled">
                      <bool>true</bool>
@@ -739,6 +763,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                       <width>0</width>
                       <height>30</height>
                      </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Arial Unicode MS</family>
+                      <pointsize>12</pointsize>
+                     </font>
                     </property>
                     <property name="layoutDirection">
                      <enum>Qt::RightToLeft</enum>
@@ -778,6 +808,11 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                     <width>190</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial Unicode MS</family>
+                   </font>
                   </property>
                   <property name="wrapping">
                    <bool>true</bool>
@@ -1045,8 +1080,17 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial Unicode MS</family>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="layoutDirection">
                   <enum>Qt::RightToLeft</enum>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
@@ -1064,11 +1108,17 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial Unicode MS</family>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="layoutDirection">
                   <enum>Qt::RightToLeft</enum>
                  </property>
                  <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  <set>Qt::AlignCenter</set>
                  </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
@@ -1092,8 +1142,19 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial Unicode MS</family>
+                   <pointsize>12</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="layoutDirection">
                   <enum>Qt::RightToLeft</enum>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
@@ -1111,8 +1172,17 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial Unicode MS</family>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="layoutDirection">
                   <enum>Qt::RightToLeft</enum>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
@@ -1129,6 +1199,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    <width>0</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial Unicode MS</family>
+                   <pointsize>12</pointsize>
+                  </font>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -1148,6 +1224,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    <width>0</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial Unicode MS</family>
+                   <pointsize>12</pointsize>
+                  </font>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -1171,6 +1253,22 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>F_name</tabstop>
+  <tabstop>L_name</tabstop>
+  <tabstop>CIN</tabstop>
+  <tabstop>BD</tabstop>
+  <tabstop>address</tabstop>
+  <tabstop>tel</tabstop>
+  <tabstop>salary</tabstop>
+  <tabstop>cnss</tabstop>
+  <tabstop>company</tabstop>
+  <tabstop>role</tabstop>
+  <tabstop>start_date</tabstop>
+  <tabstop>save_btn</tabstop>
+  <tabstop>cancel_btn</tabstop>
+  <tabstop>back_btn</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

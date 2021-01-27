@@ -91,11 +91,26 @@
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
             <widget class="QComboBox" name="omal_combo">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>26</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>210</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial Unicode MS</family>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="maxVisibleItems">
+              <number>5</number>
              </property>
             </widget>
            </item>
@@ -109,10 +124,10 @@
              </property>
              <property name="font">
               <font>
-               <family>FreeSerif</family>
+               <family>Calibri</family>
                <pointsize>14</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -189,10 +204,10 @@
                </property>
                <property name="font">
                 <font>
-                 <family>FreeSerif</family>
+                 <family>Calibri</family>
                  <pointsize>14</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
+                 <weight>50</weight>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="text">
@@ -255,10 +270,10 @@
                </property>
                <property name="font">
                 <font>
-                 <family>FreeSerif</family>
+                 <family>Calibri</family>
                  <pointsize>14</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
+                 <weight>50</weight>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="text">
@@ -321,10 +336,10 @@
                </property>
                <property name="font">
                 <font>
-                 <family>FreeSerif</family>
+                 <family>Calibri</family>
                  <pointsize>14</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
+                 <weight>50</weight>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="text">
@@ -387,10 +402,10 @@
                </property>
                <property name="font">
                 <font>
-                 <family>FreeSerif</family>
+                 <family>Calibri</family>
                  <pointsize>14</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
+                 <weight>50</weight>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="text">
@@ -459,10 +474,10 @@
                </property>
                <property name="font">
                 <font>
-                 <family>FreeSerif</family>
+                 <family>Calibri</family>
                  <pointsize>14</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
+                 <weight>50</weight>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="text">
@@ -507,10 +522,10 @@
                </property>
                <property name="font">
                 <font>
-                 <family>FreeSerif</family>
+                 <family>Calibri</family>
                  <pointsize>14</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
+                 <weight>50</weight>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="text">
@@ -585,12 +600,52 @@
             </widget>
            </item>
            <item>
+            <widget class="QDateEdit" name="pay_date">
+             <property name="minimumSize">
+              <size>
+               <width>151</width>
+               <height>26</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>151</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial Unicode MS</family>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="displayFormat">
+              <string>dd/MM/yyyy</string>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLineEdit" name="to_pay">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>26</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>254</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial Unicode MS</family>
+               <pointsize>12</pointsize>
+              </font>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>

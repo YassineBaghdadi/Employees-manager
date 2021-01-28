@@ -359,15 +359,21 @@ class History(QtWidgets.QWidget):
 
 
 class Add(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, id = None):
         super(Add, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'add.ui'), self)
         self.move(300, 200)
+        self.idd = id
+        if self.idd:
+            self.fill(id)
+            self.save_btn.clicked.connect(self.edit)
+
+        else:
+            self.save_btn.clicked.connect(self.save)
 
         self.back_btn.clicked.connect(self.back)
         self.start_date.setDate(QtCore.QDate.currentDate())
         self.cancel_btn.clicked.connect(self.cancel)
-        self.save_btn.clicked.connect(self.save)
         self.companies = ['هادف غاز', 'صافكام', 'سونعيمي', 'المقهى', 'هيمكة', 'أخرى']
         self.roles = ["سائق", "مساعد", "الإدارة", "أخرى"]
         self.cnss.setValidator(QtGui.QIntValidator())
@@ -380,6 +386,76 @@ class Add(QtWidgets.QWidget):
         self.main = Omal()
         self.close()
         self.main.show()
+
+
+    def fill(self, id):
+        try:
+            con = db_connect()
+            print('connected')
+            curs = con.cursor()
+            print(id)
+            curs.execute(f'''SELECT * FROM agents WHERE id = {id} ;''')
+            d = [i for i in curs.fetchall()[0]]
+            self.F_name.setText(str(d[1]))
+            self.L_name.setText(str(d[2]))
+            self.CIN.setText(str(d[4]))
+            self.BD.setDate(QtCore.QDate(int(d[3].split('-')[0]), int(d[3].split('-')[1]), int(d[3].split('-')[2])))
+            self.address.setText(d[11])
+            self.tel.setText(d[10])
+            self.salary.setText(str(d[9]))
+            self.cnss.setText(d[5])
+
+            # self.company.setCurrentIndex(self.companies.index(d[6]))
+            self.company.setCurrentIndex(3)
+            #todo error here
+            # self.role.setCurrentIndex(self.companies.index(d[7]))
+            self.start_date.setDate(QtCore.QDate(int(d[-2].split('-')[0]), int(d[-2].split('-')[1]), int(d[-2].split('-')[2])))
+
+            print(d)
+
+        except Exception as e:
+            print(f'cant connect to the server {e}')
+            self.close()
+            self.err = Err(e)
+            self.err.show()
+
+
+
+    def edit(self):
+        if not self.F_name.text() or not self.L_name.text() or int(str(datetime.date.today().strftime("%Y-%m-%d")).split("-")[0]) - int(str(self.BD.date().toPyDate()).split("-")[0]) < 14 or self.CIN.text() == "" or self.salary.text() == "":
+            QtWidgets.QMessageBox.about(self, "ERROR", "معلومات غير مقبولة")
+            return
+        try:
+            con = db_connect()
+            print('connected')
+            curs = con.cursor()
+            # curs.execute("set names utf8;")
+            curs.execute(f'''
+                update agents set
+                 F_name = "{self.F_name.text()}",
+                 L_name = "{self.L_name.text()}",
+                 BD = "{str(self.BD.date().toPyDate())}",
+                 CIN = "{self.CIN.text()}",
+                 CNSS = "{self.cnss.text()}",
+                 company = "{str(self.company.currentText())}",
+                 role_ = "{str(self.role.currentText())}",
+                 status = "{1}",
+                 salary = {int(self.salary.text())},
+                 TEL = "{self.tel.text()}",
+                 adress = "{self.address.text()}",
+                 img = " ",
+                 start_date = "{str(self.start_date.date().toPyDate())}" 
+                 where id = {self.idd}
+            ''')
+
+            con.commit()
+            con.close()
+            self.cancel()
+        except (pymysql.err.OperationalError, OSError, pymysql.err.DataError, pymysql.err.ProgrammingError) as e:
+            print(f'cant connect to the server {e}')
+            self.err = Err(e)
+            self.err.show()
+            self.close()
 
 
     def save(self):
@@ -413,19 +489,6 @@ class Add(QtWidgets.QWidget):
             con = db_connect()
             print('connected')
             curs = con.cursor()
-            print( f"{self.F_name.text()}",
-                    f"{self.L_name.text()}",
-                    f"{str(self.BD.date().toPyDate())}",
-                    f"{self.CIN.text()}",
-                     f"{self.cnss.text()}",
-                    f"{str(self.company.currentText())}",
-                    f"{str(self.role.currentText())}",
-                    f"{1}",
-                    f"{self.salary.text()}",
-                    f"{self.tel.text()}",
-                    f"{self.address.text()}",
-                    f" ",
-                    f"{str(self.start_date.date().toPyDate())}")
             # curs.execute("set names utf8;")
             curs.execute(f'''
                     insert into agents (F_name, L_name, BD, CIN, CNSS, company, role_, status, salary, TEL, address, img, start_date) values(
@@ -549,6 +612,19 @@ class Omal_list(QtWidgets.QWidget):
         self.search.textChanged.connect(self.fill)
         self.fill()
         self.add.clicked.connect(self.add_emp)
+        self.omal_table.viewport().installEventFilter(self)
+
+    def eventFilter(self, source, event):
+        if (event.type() == QtCore.QEvent.MouseButtonDblClick and source is self.omal_table.viewport()):
+            items = self.omal_table.itemAt(event.pos())
+            if items is not None:
+                print('dblclick:', items.row(), items.column())
+                print(self.omal_table.item(items.row(), items.column()).text())
+                self.modify = Add(self.omal_table.item(items.row(), 0).text())
+                self.modify.show()
+                self.close()
+        return super(Omal_list, self).eventFilter(source, event)
+
 
     def add_emp(self):
         self.addd = Add()
@@ -579,8 +655,8 @@ class Omal_list(QtWidgets.QWidget):
     def fill(self):
         print(self.copanies_combo.currentText())
         [self.omal_table.removeRow(0) for _ in range(self.omal_table.rowCount())]
-        head = ["الإسم", "النسب", "البطاقة الوطنية", "المهمة", "الشركة", "الهاتف", "العنوان", "تاريخ الإلتحاق"]
-
+        head = ["الإسم", "النسب", "البطاقة الوطنية", "المهمة", "الشركة", "الهاتف", "العنوان", "تاريخ الإلتحاق", "الوضعية"]
+        head.insert(0, 'الرقم التسلسلي')
         # self.omal_table.horizontalHeader().setSectionResizeMode(head.index(self.head[-1]), QtWidgets.QHeaderView.Stretch)
         # for i in range(len(head)):
         #     self.omal_table.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
@@ -590,16 +666,18 @@ class Omal_list(QtWidgets.QWidget):
         #qury = ""
 
         if self.search.text():
-            qury = f"""SELECT F_name, L_name, CIN, role_, company, TEL, address, start_date FROM agents WHERE ( status like '1' and company like '%{self.copanies_combo.currentText()}%') and (F_name LIKE '%{self.search.text()}%' or L_name LIKE '%{self.search.text()}%' or CIN LIKE '%{self.search.text()}%'); """
+            qury = f"""SELECT id, F_name, L_name, CIN, role_, company, TEL, address, start_date, status FROM agents WHERE (company like '%{self.copanies_combo.currentText()}%') and (F_name LIKE '%{self.search.text()}%' or L_name LIKE '%{self.search.text()}%' or CIN LIKE '%{self.search.text()}%') order by L_name DESC; """
 
 
         else:
-            qury = f"SELECT F_name, L_name, CIN, role_, company, TEL, address, start_date FROM agents WHERE status like '1' and company like '{self.copanies_combo.currentText()}';"
+            qury = f"SELECT id, F_name, L_name, CIN, role_, company, TEL, address, start_date, status FROM agents WHERE company like '{self.copanies_combo.currentText()}' order by L_name DESC;"
 
         curs.execute(qury)
 
-        data = curs.fetchall()
+        # data = curs.fetchall()
+        data = [[c for c in i] for i in  curs.fetchall()]
         print(data)
+
         if not data :
             return
         self.omal_table.setColumnCount(len(data[0]))
@@ -613,7 +691,7 @@ class Omal_list(QtWidgets.QWidget):
         for r in range(len(data)):
             self.omal_table.insertRow(0)
             for c in range(len(data[r])):
-                self.omal_table.setItem(0, c, QtWidgets.QTableWidgetItem(data[r][c]))
+                self.omal_table.setItem(0, c, QtWidgets.QTableWidgetItem(str(data[r][c])))
 
         con.close()
 

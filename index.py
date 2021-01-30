@@ -103,7 +103,8 @@ class PripareDB:
                                 end_date VARCHAR(50)) ENGINE = INNODB;''')
 
                     curs.execute(f'''CREATE TABLE IF NOT EXISTS {DB}.history (
-                                id INT AUTO_INCREMENT PRIMARY KEY, 
+                                id INT AUTO_INCREMENT PRIMARY KEY,
+                                op_date VARCHAR(50),
                                 user INT, 
                                 pc VARCHAR(50), 
                                 opr VARCHAR(50), 
@@ -537,7 +538,18 @@ class Pay(QtWidgets.QWidget):
         self.omal_combo.currentTextChanged.connect(self.fill)
         self.pay_btn.clicked.connect(self.pay)
         self.pay_date.setDate(QtCore.QDate.currentDate())
+        self.to_pay.textChanged.connect(self.virf_amount)
+        self.to_pay.setEnabled(False)
 
+
+    def virf_amount(self):
+        try:
+            if float(self.to_pay.text()) > float(str(self.rest.text()).strip().replace(' ', '').replace('dh', '')):
+                self.pay_btn.setEnabled(False)
+            else:
+                self.pay_btn.setEnabled(True)
+        except:
+            self.to_pay.clear()
 
     def pay(self):
         if self.omal_combo.currentIndex() == 0:
@@ -548,12 +560,15 @@ class Pay(QtWidgets.QWidget):
             QtWidgets.QMessageBox.about(self, "ERROR", "أدخل المبلغ أولا")
             return
 
+
+
         self.curs.execute(f'''insert into paids (agent, amount, paid_date) value ({int(self.omal_combo.currentText().split('-')[1])}, "{self.to_pay.text()}", "{str(self.pay_date.date().toPyDate())}")''')
         self.con.commit()
         self.to_pay.setText('')
         self.omal_combo.setCurrentIndex(0)
 
     def fill(self):
+        self.to_pay.clear()
         if not self.omal_combo.currentText():
             self.salary.setText('0 DH')
             self.working_period.setText('0')
@@ -561,7 +576,10 @@ class Pay(QtWidgets.QWidget):
             self.abssences.setText('0')
             self.amount_paid.setText('0')
             self.rest.setText('0')
+            self.to_pay.setEnabled(False)
             return
+
+        self.to_pay.setEnabled(True)
 
 
         self.curs.execute(f'''SELECT salary, start_date FROM agents WHERE id = {int(self.omal_combo.currentText().split('-')[1])}''')
@@ -581,6 +599,10 @@ class Pay(QtWidgets.QWidget):
         day = salary / 30
 
         self.rest.setText(str(round((salary-(amount_paids+(day * int(mounths_abbs_days[0])))), 2)))
+        if not float(round((salary-(amount_paids+(day * int(mounths_abbs_days[0])))), 2)):
+            self.pay_btn.setEnabled(False)
+        else:
+            self.pay_btn.setEnabled(True)
 
 
     def back(self):

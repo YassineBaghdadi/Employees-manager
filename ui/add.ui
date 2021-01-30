@@ -1271,6 +1271,9 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                    <pointsize>12</pointsize>
                   </font>
                  </property>
+                 <property name="toolTip">
+                  <string>تاريخ الإزدياد</string>
+                 </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
                  </property>

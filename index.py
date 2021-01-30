@@ -364,23 +364,23 @@ class Add(QtWidgets.QWidget):
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'add.ui'), self)
         self.move(300, 200)
         self.idd = id
+        self.companies = ['هادف غاز', 'صافكام', 'سونعيمي', 'المقهى', 'هيمكة', 'أخرى']
+        self.roles = ["سائق", "مساعد", "الإدارة", "أخرى"]
+
+
+        self.back_btn.clicked.connect(self.back)
+        self.start_date.setDate(QtCore.QDate.currentDate())
+        self.cancel_btn.clicked.connect(self.cancel)
+        self.cnss.setValidator(QtGui.QIntValidator())
+        self.salary.setValidator(QtGui.QIntValidator())
+        self.company.addItems(self.companies)
+        self.role.addItems(self.roles)
         if self.idd:
             self.fill(id)
             self.save_btn.clicked.connect(self.edit)
 
         else:
             self.save_btn.clicked.connect(self.save)
-
-        self.back_btn.clicked.connect(self.back)
-        self.start_date.setDate(QtCore.QDate.currentDate())
-        self.cancel_btn.clicked.connect(self.cancel)
-        self.companies = ['هادف غاز', 'صافكام', 'سونعيمي', 'المقهى', 'هيمكة', 'أخرى']
-        self.roles = ["سائق", "مساعد", "الإدارة", "أخرى"]
-        self.cnss.setValidator(QtGui.QIntValidator())
-        self.salary.setValidator(QtGui.QIntValidator())
-        self.company.addItems(self.companies)
-        self.role.addItems(self.roles)
-
 
     def back(self):
         self.main = Omal()
@@ -400,16 +400,24 @@ class Add(QtWidgets.QWidget):
             self.L_name.setText(str(d[2]))
             self.CIN.setText(str(d[4]))
             self.BD.setDate(QtCore.QDate(int(d[3].split('-')[0]), int(d[3].split('-')[1]), int(d[3].split('-')[2])))
+            print(f'start date : {d[13]}')
+            self.start_date.setDate(QtCore.QDate(int(d[13].split('-')[0]), int(d[13].split('-')[1]), int(d[13].split('-')[2])))
             self.address.setText(d[11])
             self.tel.setText(d[10])
             self.salary.setText(str(d[9]))
             self.cnss.setText(d[5])
 
-            # self.company.setCurrentIndex(self.companies.index(d[6]))
-            self.company.setCurrentIndex(3)
-            #todo error here
-            # self.role.setCurrentIndex(self.companies.index(d[7]))
-            self.start_date.setDate(QtCore.QDate(int(d[-2].split('-')[0]), int(d[-2].split('-')[1]), int(d[-2].split('-')[2])))
+            print('company ', self.companies.index(d[6]))
+            index = self.company.findText(d[6], QtCore.Qt.MatchFixedString)
+            if index >= 0:
+                self.company.setCurrentIndex(index)
+
+
+            index = self.role.findText(d[7], QtCore.Qt.MatchFixedString)
+            if index >= 0:
+                self.role.setCurrentIndex(index)
+
+            self.status.setChecked(True) if d[8] == 'نشط' else self.status.setChecked(False)
 
             print(d)
 
@@ -425,28 +433,31 @@ class Add(QtWidgets.QWidget):
         if not self.F_name.text() or not self.L_name.text() or int(str(datetime.date.today().strftime("%Y-%m-%d")).split("-")[0]) - int(str(self.BD.date().toPyDate()).split("-")[0]) < 14 or self.CIN.text() == "" or self.salary.text() == "":
             QtWidgets.QMessageBox.about(self, "ERROR", "معلومات غير مقبولة")
             return
+
+
+
         try:
             con = db_connect()
             print('connected')
             curs = con.cursor()
             # curs.execute("set names utf8;")
             curs.execute(f'''
-                update agents set
-                 F_name = "{self.F_name.text()}",
-                 L_name = "{self.L_name.text()}",
-                 BD = "{str(self.BD.date().toPyDate())}",
-                 CIN = "{self.CIN.text()}",
-                 CNSS = "{self.cnss.text()}",
-                 company = "{str(self.company.currentText())}",
-                 role_ = "{str(self.role.currentText())}",
-                 status = "{1}",
-                 salary = {int(self.salary.text())},
-                 TEL = "{self.tel.text()}",
-                 adress = "{self.address.text()}",
-                 img = " ",
-                 start_date = "{str(self.start_date.date().toPyDate())}" 
-                 where id = {self.idd}
-            ''')
+                        update agents set
+                         F_name = "{self.F_name.text()}",
+                         L_name = "{self.L_name.text()}",
+                         BD = "{str(self.BD.date().toPyDate())}",
+                         CIN = "{self.CIN.text()}",
+                         CNSS = "{self.cnss.text()}",
+                         company = "{str(self.company.currentText())}",
+                         role_ = "{str(self.role.currentText())}",
+                         status = "{'نشط' if self.status.isChecked() else 'متوقف'}",
+                         salary = {int(self.salary.text())},
+                         TEL = "{self.tel.text()}",
+                         address = "{self.address.text()}",
+                         img = " ",
+                         start_date = "{str(self.start_date.date().toPyDate())}" 
+                         where id = {self.idd}
+                    ''')
 
             con.commit()
             con.close()
@@ -465,25 +476,6 @@ class Add(QtWidgets.QWidget):
         if not self.F_name.text() or not self.L_name.text() or int(str(datetime.date.today().strftime("%Y-%m-%d")).split("-")[0]) - int(str(self.BD.date().toPyDate()).split("-")[0]) < 14 or self.CIN.text() == "" or self.salary.text() == "":
             QtWidgets.QMessageBox.about(self, "ERROR", "معلومات غير مقبولة")
             return
-        # con = db_connect()
-        # print('connected')
-        # curs = con.cursor()
-        # curs.execute(f'''
-        #                     insert into agents (F_name, L_name, BD, CIN, CNSS, company, role_, status, salary, TEL, address, img, start_date) values(
-        #                     "{self.F_name.text()}",
-        #                     "{self.L_name.text()}",
-        #                     "{str(self.BD.date().toPyDate())}",
-        #                     "{self.CIN.text()}",
-        #                      {self.cnss.text()},
-        #                     "{str(self.company.currentText())}",
-        #                     "{str(self.role.currentText())}",
-        #                     "{1}",
-        #                     "{self.salary.text()}",
-        #                     "{self.tel.text()}",
-        #                     "{self.address.text()}",
-        #                     " ",
-        #                     "{str(self.start_date.date().toPyDate())}"
-        #                 )''')
 
         try:
             con = db_connect()
@@ -499,7 +491,7 @@ class Add(QtWidgets.QWidget):
                     "{self.cnss.text()}",
                     "{str(self.company.currentText())}",
                     "{str(self.role.currentText())}",
-                    "{1}",
+                    "{'نشط' if self.status.isChecked() else 'متوقف'}",
                     {int(self.salary.text())},
                     "{self.tel.text()}",
                     "{self.address.text()}",
@@ -538,7 +530,7 @@ class Pay(QtWidgets.QWidget):
         self.back_btn.clicked.connect(self.back)
         self.con = db_connect()
         self.curs = self.con.cursor()
-        self.curs.execute("SELECT F_name, L_name, id, company FROM agents WHERE status like '1' ORDER BY F_name ASC ;")
+        self.curs.execute("SELECT F_name, L_name, id, company FROM agents ORDER BY F_name ASC ;")
         agents = [f"{i[0]} {i[1]} -{i[2]}- {i[3]}" for i in self.curs.fetchall()]
         agents.insert(0, '')
         self.omal_combo.addItems(agents)
@@ -710,7 +702,7 @@ class Checkin(QtWidgets.QWidget):
         self.cancel.clicked.connect(self.back)
         self.con = db_connect()
         self.curs = self.con.cursor()
-        self.curs.execute("SELECT F_name, L_name, id, company FROM agents WHERE status like '1'  ORDER BY F_name ASC ;")
+        self.curs.execute("SELECT F_name, L_name, id, company FROM agents WHERE status like 'نشط'  ORDER BY F_name ASC ;")
         agents = [f"{i[0]} {i[1]} -{i[2]}- {i[3]}" for i in self.curs.fetchall()]
         agents.insert(0, '')
         print(agents)

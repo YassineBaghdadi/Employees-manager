@@ -7,12 +7,29 @@
 import base64
 import requests
 
+#
+# url = 'https://api.github.com/repos/YassineBaghdadi/apps_alowing/contents/hadefGazAbssManager.json'
+# req = requests.get(url)
+#
+# req = req.json()  # the response is a JSON
+#     # req is now a dict with keys: name, encoding, url, size ...
+#     # and content. But it is encoded with base64.
+# # content = base64.decodestring(req)
+# print(req)
+from docx import Document
+filename = 'src/blank.docx'
 
-url = 'https://api.github.com/repos/YassineBaghdadi/apps_alowing/contents/hadefGazAbssManager.json'
-req = requests.get(url)
+doc = Document(filename)
 
-req = req.json()  # the response is a JSON
-    # req is now a dict with keys: name, encoding, url, size ...
-    # and content. But it is encoded with base64.
-# content = base64.decodestring(req)
-print(req)
+def replace_text(old, new):
+    for p in doc.paragraphs:
+            if old in p.text:
+                inline = p.runs
+                for i in range(len(inline)):
+                    if old in inline[i].text:
+                        text = inline[i].text.replace(old, new)
+                        inline[i].text = text
+
+    doc.save('dest1.docx')
+
+

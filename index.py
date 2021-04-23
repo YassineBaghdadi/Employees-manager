@@ -407,6 +407,16 @@ class Add(QtWidgets.QWidget):
             print('connected')
             curs = con.cursor()
             print(id)
+            try:
+                if os.path.isfile(f'src/img/emps/{id}.png'):
+                    self.profile_img.setPixmap(QtGui.QPixmap(f'src/img/emps/{id}.png'))
+                    self.profile_img.setScaledContents(True)
+                else:
+                    self.profile_img.setPixmap(QtGui.QPixmap(f'src/img/no-image.png'))
+                    self.profile_img.setScaledContents(True)
+
+            except:pass
+
             curs.execute(f'''SELECT * FROM agents WHERE id = {id} ;''')
             d = [i for i in curs.fetchall()[0]]
             self.F_name.setText(str(d[1]))
@@ -550,7 +560,7 @@ class Add(QtWidgets.QWidget):
 
 
 class Pay(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, id_ = None):
         super(Pay, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'pay.ui'), self)
         self.move(300, 200)
@@ -567,6 +577,13 @@ class Pay(QtWidgets.QWidget):
         self.pay_date.setDate(QtCore.QDate.currentDate())
         self.to_pay.textChanged.connect(self.virf_amount)
         self.to_pay.setEnabled(False)
+
+        if id_:
+            for i in range(1, len(agents)):
+                if int(str(self.omal_combo.itemText(i)).split('-')[1]) == id_:
+                    self.omal_combo.setCurrentIndex(i)
+                    break
+
 
 
     def virf_amount(self):
@@ -684,10 +701,40 @@ class Omal_list(QtWidgets.QWidget):
             if items is not None:
                 print('dblclick:', items.row(), items.column())
                 print(self.omal_table.item(items.row(), items.column()).text())
-                self.modify = Add(self.omal_table.item(items.row(), 0).text())
-                self.modify.show()
-                self.close()
+                #table double click
+
+                msgbox = QtWidgets.QMessageBox()
+                # msgbox.setText('إختيار')
+                msgbox.setWindowModality(QtCore.Qt.NonModal)
+                msgbox.setWindowTitle('yassine')
+                edite = msgbox.addButton('تعديل', msgbox.ActionRole)
+                abss = msgbox.addButton('غياب', msgbox.ActionRole)
+                pay = msgbox.addButton('دفع', msgbox.ActionRole)
+                print(f'the Output is : {int(self.omal_table.item(items.row(), 0).text())}')
+
+                def make_abss():
+                    self.abss = Checkin(id=int(self.omal_table.item(items.row(), 0).text()))
+                    self.close()
+                    self.abss.show()
+
+                def make_edite():
+                    self.modify = Add(self.omal_table.item(items.row(), 0).text())
+                    self.modify.show()
+                    self.close()
+                def make_pay():
+                    self.pay = Pay(id_=int(self.omal_table.item(items.row(), 0).text()))
+                    self.close()
+                    self.pay.show()
+
+
+                abss.clicked.connect(make_abss)
+                pay.clicked.connect(make_pay)
+                edite.clicked.connect(make_edite)
+
+                msgbox.exec_()
         return super(Omal_list, self).eventFilter(source, event)
+
+
 
 
     def add_emp(self):
@@ -766,7 +813,7 @@ class Omal_list(QtWidgets.QWidget):
 
 
 class Checkin(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, id = None):
         super(Checkin, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'checkin.ui'), self)
 
@@ -785,9 +832,17 @@ class Checkin(QtWidgets.QWidget):
         self.head = ["الإسم", "النسب", "البطاقة الوطنية", "الشركة", "الهاتف", "تاريخ الغياب"]
         # for i in range(len(self.head)):
         #     self.table_.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-        self.fill()
+
         self.omal_combo.currentTextChanged.connect(self.fill)
         self.abss_date.dateChanged.connect(self.fill)
+
+        if id:
+            for i in range(1, len(agents)):
+                if int(str(self.omal_combo.itemText(i)).split('-')[1]) == id:
+                    self.omal_combo.setCurrentIndex(i)
+                    break
+
+        self.fill()
 
     def fill(self):
         [self.table_.removeRow(0) for _ in range(self.table_.rowCount())]

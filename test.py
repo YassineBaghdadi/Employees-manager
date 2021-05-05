@@ -16,12 +16,19 @@ import requests
 #     # and content. But it is encoded with base64.
 # # content = base64.decodestring(req)
 # print(req)
+
+
+#
+# #todo replace texes for docx
 from docx import Document
-filename = 'src/blank.docx'
+filename = input('the file > ')
+old = input('old > ')
+new = input('new > ')
+
 
 doc = Document(filename)
 
-def replace_text(old, new):
+def replace_text():
     for p in doc.paragraphs:
             if old in p.text:
                 inline = p.runs
@@ -30,6 +37,9 @@ def replace_text(old, new):
                         text = inline[i].text.replace(old, new)
                         inline[i].text = text
 
-    doc.save('dest1.docx')
+    doc.save(filename)
+#todo end
 
 
+
+replace_text()

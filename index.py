@@ -340,23 +340,64 @@ class Omal(QtWidgets.QWidget):
 
 
 class History(QtWidgets.QWidget):
-    def __init__(self, h=True):
+    def __init__(self, a=None):
         super(History, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ui', 'history.ui'), self)
         self.move(300, 200)
-        self.h = h
+
         self.back_btn.clicked.connect(self.back)
         self.title = ''
-        if not h:#todo for change the title if not history window
-            self.title = ''
+
+        self.con = db_connect()
+        self.curs = self.con.cursor()
+        if a:
+            self.fill(key=a)
+        else:
+            self.fill()
+
+        self.search.textChanged.connect(lambda : self.fill(key=self.search.text()))
 
     def back(self):
-        if self.h:
-            self.main = Main()
-        else:
-            self.main = Omal()
+        self.main = Main()
         self.close()
         self.main.show()
+
+
+
+    def fill(self, key = None):
+
+
+        [self.table_.removeRow(0) for _ in range(self.table_.rowCount())]
+        # self.curs.execute(f"SELECT paids.paid_date, agents.F_name, agents.L_name, agents.CIN, agents.company, agents.TEL, paids.amount FROM agents INNER JOIN abss ON paids.agent = agents.id where abss.abss_date like '{str(self.abss_date.date().toPyDate())}';")
+        if key:
+            self.curs.execute(
+                f"""SELECT paids.paid_date, agents.F_name, agents.L_name, agents.CIN, agents.company, agents.TEL, paids.amount FROM agents INNER JOIN paids ON paids.agent = agents.id  where paids.paid_date like '%{key}%'
+                or agents.F_name like '%{key}%'or agents.L_name like '%{key}%' or agents.CIN like '%{key}%' or agents.company like '%{key}%' or agents.TEL like '%{key}%' or paids.amount like '%{key}%' order by paids.paid_date asc;""")
+        else:
+            self.curs.execute(f"SELECT paids.paid_date, agents.F_name, agents.L_name, agents.CIN, agents.company, agents.TEL, paids.amount FROM agents INNER JOIN paids ON paids.agent = agents.id order by paids.paid_date asc;")
+
+
+
+        data = self.curs.fetchall()
+        print(data)
+        if not data:
+            return
+
+        self.table_.setColumnCount(len(data[0]))
+        self.table_.setHorizontalHeaderLabels(['التاريخ', 'الاسم', 'النسب', 'ب.ت.و', 'الشركة', 'الهاتف', 'المبلغ'])
+
+        for r in range(len(data)):
+            self.table_.insertRow(0)
+            print(data[r])
+            for c in range(len(data[r])):
+
+
+                self.table_.horizontalHeader().setSectionResizeMode(c, QtWidgets.QHeaderView.Stretch)
+                self.table_.setItem(0, c, QtWidgets.QTableWidgetItem(data[r][c]))
+
+
+
+
 
 
 class Add(QtWidgets.QWidget):
